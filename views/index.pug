@@ -1,0 +1,123 @@
+doctype html
+html
+    head
+        title Onenote SYNC
+        script(src="https://cdn.jsdelivr.net/npm/@microsoft/microsoft-graph-client/lib/graph-js-sdk.js")
+        script(src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.0/js/msal.min.js")
+        style.
+            input {
+                height: 22px;
+                border:0;
+                border-bottom:1px solid black;
+                margin-right:10px;
+                outline:none;
+            }
+            select {
+                height: 28px;
+                margin-right:10px;
+                border:0;
+                border-bottom:1px solid black;
+                outline:none;
+            }
+            button {
+                padding:5px;
+            }
+            hr {
+                border: 0.5pt solid lightgray;
+                margin:20px;
+            }
+            h4 {
+                margin-bottom:7px;
+            }
+            li { 
+                margin:10px;
+            }
+            .float {
+                position: absolute;
+                top:20px; right:20px;
+                height:32px;width:32px;
+                border:1px solid gray;
+                border-radius:16px;
+                color:dimgray;
+                cursor:pointer;
+                font-size:14pt;
+                font-weight: bold;
+                text-align:center;
+                line-height:32px;
+            }
+            .tip {
+                display: inline-block;
+                background: lightgray;
+                color:dimgray;
+                height: 28px; width:28px;
+                line-height:28px;
+                text-align:center;
+                border-radius: 14px;
+            }
+            .logo {
+                height:64px;
+                margin:20px;
+                vertical-align: top;
+                z-index: 999;
+            }
+            .block {
+                display:inline-block;
+                margin:35px 20px 0;
+            }
+            a:link, a:visited { color: black; text-decoration: none;}
+            a:hover, a:active { text-decoration:underline;}
+            .link { background: rgb(244,244,244); font-size:small; text-decoration: underline; margin:2px; }
+            .blink {
+            color: darkgray;
+            animation: blinker 0.6s linear infinite;
+            }
+            @keyframes blinker {  
+                50% { opacity: 0; }
+            }
+            .blink-one {
+                animation: blinker-one 1s linear infinite;
+            }
+            @keyframes blinker-one {  
+                0% { opacity: 0; }
+            }
+            .blink-two {
+                animation: blinker-two 1.4s linear infinite;
+            }
+            @keyframes blinker-two {  
+                100% { opacity: 0; }
+            }
+            .tasks {
+                display:inline-block;
+                margin:25px 10px 20px 0px;
+            }
+
+    body
+        img.logo(src='images/onenote.png')
+        div.block
+            div#user(style="display:inline-block;margin-right:20px") User not logged
+            button(onclick="logout()") Logout
+            h4 Notebook
+            div#notes
+            h4 Section
+            div#sections
+            h4 Page
+            div#pages none
+            h4.tasks Tasks
+            div.tip#todos 0
+            div#tasks
+        br
+        br
+
+        img.logo(src='images/todoist.png')
+        div.block
+            div(style="display:inline-block;margin-right:20px") User not connected
+            button Connect
+            h4 Projects
+            div#projects(style='display:inline-block;margin-right:10px')
+            h4 Template
+            input#text(style='width:350px' value=''  autocomplete="off")
+            br
+            br
+            button(onclick='createTasks()' disabled) Export tasks
+        br
+        br
