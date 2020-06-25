@@ -6,11 +6,6 @@ app.set('views', './views')
 app.set('view engine', 'pug')
 app.use(express.static('public'))
 
-app.use((req, res, next) => {
-	console.log(`URL: ${req.url}`)
-	next()
-})
-
 app.get('/', (req, res) => {
 	res.render('index')
 })
