@@ -41,7 +41,7 @@ html
 
             const msalConfig = {
                 auth: {
-                    clientId: "77d579f2-3366-4120-a9ee-611e72487061",
+                    clientId: "77d579f2-3366-4120-a9ee-611e72487061", // replace with your own clientID from Properties page in Azure portal
                     redirectUri: window.location.origin,
                 },
             },
@@ -66,7 +66,7 @@ html
                 }
             },
 
-            login = function() {
+            init = function() {
                 client.api("/me").get()
                 .then( res => {
                     update({ user: "User: " + res.userPrincipalName })
@@ -75,6 +75,10 @@ html
                     document.getElementById('logo2').src = document.getElementById('logo2').src
                     getNotebooks()
                 })
+            },
+
+            logout = function() {
+                msalApplication.logout()
             },
 
             getNotebooks = function() {
@@ -258,5 +262,5 @@ html
                 })
             }
 
-            login()
+            init()
 
