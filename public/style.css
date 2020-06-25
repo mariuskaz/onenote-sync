@@ -39,7 +39,8 @@ li {
     display: inline-block;
     background: lightgray;
     color:dimgray;
-    height: 28px; width:28px;
+    height: 28px; 
+    width:28px;
     line-height:28px;
     text-align:center;
     border-radius: 14px;
@@ -63,7 +64,8 @@ li {
 }
 
 a:link, a:visited { 
-    color: black; text-decoration: none;
+    color: black; 
+    text-decoration: none;
 }
 
 a:hover, a:active {
