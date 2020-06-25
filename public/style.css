@@ -1,0 +1,99 @@
+input {
+    height: 22px;
+    border:0;
+    border-bottom:1px solid black;
+    margin-right:10px;
+    outline:none;
+}
+
+select {
+    height: 28px;
+    margin-right:10px;
+    border:0;
+    border-bottom:1px solid black;
+    outline:none;
+}
+
+button {
+    padding:5px;
+}
+
+hr {
+    border: 0.5pt solid lightgray;
+    margin:20px;
+}
+
+h4 {
+    margin-bottom:7px;
+}
+
+li { 
+    margin:10px;
+}
+
+.tip {
+    display: inline-block;
+    background: lightgray;
+    color:dimgray;
+    height: 28px; width:28px;
+    line-height:28px;
+    text-align:center;
+    border-radius: 14px;
+}
+
+.logo {
+    height:64px;
+    margin:20px;
+    vertical-align: top;
+    z-index: 999;
+}
+
+.block {
+    display:inline-block;
+    margin:35px 20px 0;
+}
+
+.tasks {
+    display:inline-block;
+    margin:25px 10px 20px 0px;
+}
+
+a:link, a:visited { 
+    color: black; text-decoration: none;
+}
+
+a:hover, a:active {
+    text-decoration:underline;
+}
+
+.link { 
+    background: rgb(244,244,244); 
+    font-size:small; 
+    text-decoration: underline; 
+    margin:2px; 
+}
+
+.blink {
+    color: darkgray;
+    animation: blinker 0.6s linear infinite;
+}
+
+@keyframes blinker {  
+    50% { opacity: 0; }
+}
+
+.blink-one {
+    animation: blinker-one 1s linear infinite;
+}
+
+@keyframes blinker-one {  
+    0% { opacity: 0; }
+}
+
+.blink-two {
+    animation: blinker-two 1.4s linear infinite;
+}
+
+@keyframes blinker-two {  
+    100% { opacity: 0; }
+}
