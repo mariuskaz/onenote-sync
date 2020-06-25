@@ -18,6 +18,10 @@ button {
     padding:5px;
 }
 
+#logout {
+    display:none;
+}
+
 hr {
     border: 0.5pt solid lightgray;
     margin:20px;
