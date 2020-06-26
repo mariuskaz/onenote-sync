@@ -5,7 +5,7 @@ const msalConfig = {
     },
 },
 
-graphScopes = ["user.read", "mail.send", "notes.read"],
+graphScopes = ["user.read", "notes.read"],
 msalApplication = new Msal.UserAgentApplication(msalConfig),
 options = new MicrosoftGraph.MSALAuthenticationProviderOptions(graphScopes),
 authProvider = new MicrosoftGraph.ImplicitMSALAuthenticationProvider(msalApplication, options),
