@@ -130,11 +130,6 @@ a:hover, a:active {
     right: 30px;
 }
 
-#token {
-    width:250px;
-    margin-top:4px;
-}
-
 .close-icon {
     position: absolute;
     right: 10px;
@@ -151,4 +146,9 @@ a:hover, a:active {
 
 .dialog label {
     font-size: 8pt;
+}
+
+#token {
+    width:250px;
+    margin-top:4px;
 }
