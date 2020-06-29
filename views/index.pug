@@ -5,7 +5,7 @@ html
         script(src="https://cdn.jsdelivr.net/npm/@microsoft/microsoft-graph-client/lib/graph-js-sdk.js")
         script(src="https://secure.aadcdn.microsoftonline-p.com/lib/1.0.0/js/msal.min.js")
         link(rel="stylesheet", href="style.css")
-
+        link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
     body
         img.logo#logo1(src='images/onenote.png')
         div.block
@@ -26,7 +26,7 @@ html
         img.logo#logo2(src='images/todoist.png')
         div.block
             div(style="display:inline-block;margin-right:20px") User not connected
-            button Connect
+            button(onclick="document.getElementById('connect').style.display = 'block'") Connect
             h4 Projects
             div#projects(style='display:inline-block;margin-right:10px')
             h4 Template
@@ -36,4 +36,11 @@ html
             button(onclick='createTasks()' disabled) Export tasks
         br
         br
+        .dialog#connect
+            i.material-icons.close-icon(onclick="document.getElementById('connect').style.display = 'none'") close
+            label Todoist API token:
+            br
+            input#token
+            div.footer
+                button.create Connect
         script(src='main.js')
