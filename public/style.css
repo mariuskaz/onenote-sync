@@ -113,7 +113,7 @@ a:hover, a:active {
     border-radius: 4px;
     -webkit-box-shadow: 0 24px 38px 3px rgba(0,0,0,.14), 0 9px 46px 8px rgba(0,0,0,.12), 0 11px 15px -7px rgba(0,0,0,.2);
     box-shadow: 0 24px 38px 3px rgba(0,0,0,.14), 0 9px 46px 8px rgba(0,0,0,.12), 0 11px 15px -7px rgba(0,0,0,.2);
-    height: 90px;
+    height: 170px;
     width: 300px;
     top: 0;
     left: 0;
@@ -145,10 +145,23 @@ a:hover, a:active {
 }
 
 .dialog label {
-    font-size: 8pt;
+    font-size: 10pt;
+}
+
+.dialog input {
+    margin-top:4px;
+    margin-bottom:20px;
+}
+
+#user {
+    display:inline-block;
+    margin-right:20px;
+}
+
+#name {
+    width:120px;
 }
 
 #token {
     width:250px;
-    margin-top:4px;
 }

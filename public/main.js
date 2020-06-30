@@ -34,6 +34,11 @@ init = function() {
         document.getElementById('logo2').src = document.getElementById('logo2').src
         getNotebooks()
     })
+
+    if (todoist.token.length > 0) {
+        update({ username: 'User: ' + todoist.name })
+        getProjects()
+    }
 },
 
 logout = function() {
@@ -218,6 +223,63 @@ getTasks = function() {
         })
         document.getElementById("todos").innerHTML = tasksList.length
         if (tasksList.length == 0) document.getElementById('tasks').innerHTML = '<br><b><i>NO TASKS!&nbsp;&nbsp;<small><a href="'+link+'">check page</a></small></i></b>'
+    })
+},
+
+todoist = {
+    name: localStorage['todoist_name'] || "",
+    token: localStorage['todoist_token'] || ""
+},
+
+connect = function() {
+    todoist.name = document.getElementById('name').value
+    todoist.token = document.getElementById('token').value
+    localStorage.setItem('todoist_token', todoist.token)
+    localStorage.setItem('todoist_name', todoist.name)
+    document.getElementById('connect').style.display = 'none'
+    getProjects()
+    update({ 
+        username: 'User: ' + todoist.name,
+        token: '',
+        name: ''
+    })
+},
+
+getProjects = function() {
+    let headers = {
+        'Authorization': 'Bearer ' + todoist.token
+    },
+    projects ='https://api.todoist.com/rest/v1/projects'
+
+    fetch(projects, { 
+        headers : headers 
+    })
+
+    .then(response => {
+        return response.json()
+    })
+
+    .then(data => {
+        console.log('get projects')
+        update({ projects: '' })
+
+        let projects = document.createElement('select')
+        projects.setAttribute('id','project')
+
+        let option = document.createElement("option")
+        option.text = 'Create new project'
+        option.value = 'none'
+        projects.add(option)
+
+        for (let item in data) {
+            let project = data[item],
+            option = document.createElement("option")
+            option.text = project.name
+            option.value = project.id
+            projects.add(option)
+        }
+        
+        document.getElementById("projects").append(projects)
     })
 }
 
