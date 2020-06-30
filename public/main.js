@@ -22,6 +22,7 @@ update = function(data) {
         let el = document.getElementById(key)
         if (el.nodeName == 'INPUT') el.value = data[key]
             else el.innerHTML = data[key]
+        if (todoist[key]) todoist[key] = data[key]
     }
 },
 
@@ -236,10 +237,23 @@ connect = function() {
     todoist.token = document.getElementById('token').value
     localStorage.setItem('todoist_token', todoist.token)
     localStorage.setItem('todoist_name', todoist.name)
-    document.getElementById('connect').style.display = 'none'
+    document.getElementById('connection').style.display = 'none'
     getProjects()
     update({ 
         username: 'User: ' + todoist.name,
+        token: '',
+        name: ''
+    })
+},
+
+disconnect = function() {
+    localStorage.removeItem('todoist_token')
+    localStorage.removeItem('todoist_name')
+    document.getElementById('connect').style.display = 'inline'
+    document.getElementById('disconnect').style.display = 'none'
+    update({ 
+        username: 'User not connected',
+        projects: '',
         token: '',
         name: ''
     })
@@ -280,6 +294,8 @@ getProjects = function() {
         }
         
         document.getElementById("projects").append(projects)
+        document.getElementById('connect').style.display = 'none'
+        document.getElementById('disconnect').style.display = 'inline'
     })
 }
 

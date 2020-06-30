@@ -26,7 +26,8 @@ html
         img.logo#logo2(src='images/todoist.png')
         div.block
             div#username(style="display:inline-block;margin-right:20px") User not connected
-            button(onclick="document.getElementById('connect').style.display = 'block'") Connect
+            button#connect(onclick="document.getElementById('connection').style.display = 'block'") Connect
+            button#disconnect(onclick="disconnect()") Disconnect
             h4 Projects
             div#projects(style='display:inline-block;margin-right:10px')
             h4 Template
@@ -36,8 +37,9 @@ html
             button(onclick='createTasks()' disabled) Export tasks
         br
         br
-        .dialog#connect
-            i.material-icons.close-icon(onclick="document.getElementById('connect').style.display = 'none'") close
+        
+        .dialog#connection
+            i.material-icons.close-icon(onclick="document.getElementById('connection').style.display = 'none'") close
             label User name:
             br
             input#name(autocomplete='off')
