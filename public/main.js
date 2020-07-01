@@ -26,7 +26,6 @@ view = {
             let el = document.getElementById(key)
             if (el.nodeName == 'INPUT') el.value = data[key]
                 else el.innerHTML = data[key]
-            if (todoist[key]) todoist[key] = data[key]
         }
     },
     
@@ -268,15 +267,15 @@ connect = function() {
 },
 
 disconnect = function() {
+    todoist.name = ''
+    todoist.token = ''
     localStorage.removeItem('todoist_token')
     localStorage.removeItem('todoist_name')
     document.getElementById('connect').style.display = 'inline'
     document.getElementById('disconnect').style.display = 'none'
     view.update({ 
         username: 'User not connected',
-        projects: '',
-        token: '',
-        name: ''
+        projects: ''
     })
 },
 
@@ -284,6 +283,7 @@ getProjects = function() {
     let headers = {
         'Authorization': 'Bearer ' + todoist.token
     },
+
     projects ='https://api.todoist.com/rest/v1/projects'
 
     fetch(projects, { 
