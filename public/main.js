@@ -50,7 +50,7 @@ view = {
             data.forEach( item => list.options.add(new Option(item.title, item.id)) )
             notes.innerHTML = ''
             notes.append(list)
-            notes.innerHTML += " <div class='tip'>" + list.length + "</div>"
+            notes.innerHTML += " <div class='tip'>" + data.length + "</div>"
         },
 
         get active() {
@@ -119,7 +119,7 @@ view = {
             })
             pages.innerHTML = ''
             pages.append(list)
-            pages.innerHTML += " <div class='tip'>" + list.length + "</div>"
+            pages.innerHTML += " <div class='tip'>" + data.length + "</div>"
         },
 
         get active() {
