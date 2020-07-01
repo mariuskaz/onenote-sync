@@ -10,26 +10,154 @@ msalApplication = new Msal.UserAgentApplication(msalConfig),
 options = new MicrosoftGraph.MSALAuthenticationProviderOptions(graphScopes),
 authProvider = new MicrosoftGraph.ImplicitMSALAuthenticationProvider(msalApplication, options),
 
-config = {
-    authProvider, 
-},
-
+config = { authProvider },
 Client = MicrosoftGraph.Client,
 client = Client.initWithMiddleware(config),
 
-update = function(data) {
-    for (let key in data) {
-        let el = document.getElementById(key)
-        if (el.nodeName == 'INPUT') el.value = data[key]
-            else el.innerHTML = data[key]
-        if (todoist[key]) todoist[key] = data[key]
+todoist = {
+    name: localStorage['todoist_name'] || "",
+    token: localStorage['todoist_token'] || ""
+},
+
+view = {
+
+    pageLinks: {},
+
+    update: function(data) {
+        for (let key in data) {
+            let el = document.getElementById(key)
+            if (el.nodeName == 'INPUT') el.value = data[key]
+                else el.innerHTML = data[key]
+            if (todoist[key]) todoist[key] = data[key]
+        }
+    },
+    
+    notebooks: {
+        clear: function() {
+            document.getElementById('notes').innerHTML = "<p class='blink'>Loading...</>"
+            document.getElementById('sections').innerHTML = ''
+            document.getElementById('pages').innerHTML = ''
+            document.getElementById('tasks').innerHTML = ''
+            document.getElementById('template').value = ''
+        },
+        
+        load: function(data) {
+            let notes = document.getElementById("notes")
+            list = document.createElement('select')
+            list.setAttribute('id','notebook')
+            list.setAttribute('onchange','getSections()')
+            list.options.add(new Option('Select notebook...', 'none'))
+            data.forEach( item => list.options.add(new Option(item.title, item.id)) )
+            notes.innerHTML = ''
+            notes.append(list)
+            notes.innerHTML += " <div class='tip'>" + list.length + "</div>"
+        },
+
+        get active() {
+            return document.getElementById('notebook').value
+        }
+    },
+
+    sections: {
+        clear: function() {
+            document.getElementById('sections').innerHTML = "<p class='blink'>Searching...</>"
+            document.getElementById('pages').innerHTML = ''
+            document.getElementById('tasks').innerHTML = ''
+            document.getElementById('todos').innerHTML = '0'
+            document.getElementById('template').value = ''
+        },
+
+        load: function(data) {
+            let sections = document.getElementById("sections"),
+            list = document.createElement('select'),
+            counter = 0
+            list.setAttribute('id','section')
+            list.setAttribute('onchange','getPages()')
+            list.options.add(new Option('Select section...', 'none'))
+            for (let item in data) {
+                if (data[item].sections) {
+                    let optgroup = document.createElement("optgroup")
+                    optgroup.label = data[item].title
+                    data[item].sections.forEach(section => {
+                        optgroup.appendChild(new Option(section.title, section.id))
+                        counter ++ 
+                    })
+                    list.add(optgroup) 
+                } else {
+                    list.options.add(new Option(data[item].title, item))
+                    counter ++
+                }
+            }
+            sections.innerHTML = ''
+            sections.append(list)
+            sections.innerHTML += '<div class="tip">' + counter + '</div>'
+        },
+
+        get active() {
+            return document.getElementById('section').value
+        }
+    },
+
+    pages: {
+        clear: function() {
+            document.getElementById('pages').innerHTML = "<p class='blink'>Searching...</>"
+            document.getElementById('tasks').innerHTML = ''
+            document.getElementById('todos').innerHTML = '0'
+            document.getElementById('template').value = ''
+        },
+
+        load: function(data) {
+            let pages = document.getElementById("pages")
+            list = document.createElement('select')
+            pageLinks = {}
+            list.setAttribute('id','page')
+            list.setAttribute('onchange','getTasks()')
+            list.options.add(new Option('Select page...', 'none'))
+            data.forEach( item => {
+                list.options.add(new Option(item.title, item.id)) 
+                pageLinks[item.id] = { link: item.links.oneNoteClientUrl }
+            })
+            pages.innerHTML = ''
+            pages.append(list)
+            pages.innerHTML += " <div class='tip'>" + list.length + "</div>"
+        },
+
+        get active() {
+            return document.getElementById('page').value
+        }
+
+    },
+
+    tasks: {
+        tasksList: [],
+
+        clear: function() {
+            document.getElementById('tasks').innerHTML = "<p class='blink'>Searching...</>"
+            document.getElementById('todos').innerHTML = '0'
+            document.getElementById('template').value = document.getElementById("page").selectedOptions[0].text + ' - #todo'
+        },
+
+        load: function(html, link) {
+            let tasks = document.getElementById('tasks'),
+            tags = html.querySelectorAll('*[data-tag="to-do"]')
+            tasks.innerHTML = ''
+            this.tasksList = []
+            tags.forEach( tag => {
+                this.tasksList.push(tag.innerText)
+                tasks.innerHTML += '&#9744;&nbsp;<a href="'+link+'">' + tag.innerText + '</a><br>'
+            })
+            document.getElementById("todos").innerHTML = this.tasksList.length
+            if (this.tasksList.length == 0) document.getElementById('tasks').innerHTML = '<br><b><i>NO TASKS!&nbsp;&nbsp;<small><a href="'+link+'">check page</a></small></i></b>'
+        }
     }
+
 },
 
 init = function() {
+
     client.api("/me").get()
     .then( res => {
-        update({ user: "User: " + res.userPrincipalName })
+        view.update({ user: "User: " + res.userPrincipalName })
         document.getElementById('logout').style.display = 'inline-block'
         document.getElementById('logo1').src = document.getElementById('logo1').src
         document.getElementById('logo2').src = document.getElementById('logo2').src
@@ -37,9 +165,10 @@ init = function() {
     })
 
     if (todoist.token.length > 0) {
-        update({ username: 'User: ' + todoist.name })
+        view.update({ username: 'User: ' + todoist.name })
         getProjects()
     }
+    
 },
 
 logout = function() {
@@ -48,188 +177,89 @@ logout = function() {
 
 getNotebooks = function() {
     console.log('get notebooks')
-    update({
-        notes: "<p class='blink'>Loading...</>",
-        sections: '',
-        pages: '',
-        tasks: ''
-    })
-
+    view.notebooks.clear()
     client.api('/me/onenote/notebooks')
     .select('displayName,lastModifiedDateTime,id')
     .orderby('displayName')
     .get()
     .then( res => {
-        let notes = document.createElement('select')
-        notes.setAttribute('id','notebook')
-        notes.setAttribute('onchange','getSections()')
-        let option = document.createElement("option")
-        option.text = 'Select notebook...'
-        option.value = 'none'
-        notes.add(option)
-        for (let item in res.value) {
-            let option = document.createElement("option")
-            option.text = res.value[item].displayName
-            option.value = res.value[item].id
-            notes.add(option)
-        }
-        document.getElementById("notes").innerHTML = ''
-        document.getElementById("notes").append(notes)
-        document.getElementById("notes").innerHTML += " <div class='tip'>" + res.value.length + "</div>"
+        let notes = []
+        res.value.forEach( item => notes.push({ id: item.id, title: item.displayName }) )
+        view.notebooks.load(notes)
     })
 },
 
 getSections = function() {
     console.log('get groups and sections..')
-    update({
-        sections: "<p class='blink'>Searching...</>",
-        pages: "",
-        tasks: "",
-        todos: "0",
-        template: ''
-    })
+    view.sections.clear()
+    let list = {},
 
-    let list = {}, counter = 0,
-    notebook = document.getElementById('notebook').value
-    if (notebook == 'none') return
-    client.api('/me/onenote/notebooks/'+notebook+'/sectionGroups').get()
-    .then( res => {
-        console.log('sectionGroups...'+res.value.length)
-        for (let item in res.value) {
-            let group = res.value[item].id
-            list[group] = {
-                name: res.value[item].displayName,
-                sections: []
-            }
-            iterateGroup(group)
-        }
-    })
-
-    client.api('/me/onenote/notebooks/'+notebook+'/sections').get()
-    .then( res => {
-        console.log('sections...'+res.value.length)
-        for (let item in res.value) {
-            let section = res.value[item].id
-            list[section] = {
-                name: res.value[item].displayName
-            }
-            counter ++
-        }
-        createList()
-    })
-
-    let iterateGroup = function(grp) {
-        client.api('/me/onenote/sectionGroups/'+grp+'/sections').get()
+    singleSections = function() {
+        client.api('/me/onenote/notebooks/'+view.notebooks.active+'/sections').get()
         .then( res => {
-            console.log('sectionGroup '+grp)
-            for (let item in res.value) {
-                list[grp].sections.push({
-                    name: res.value[item].displayName,
-                    id: res.value[item].id
-                })
-                counter ++
-            }
-            createList()
+            console.log('sections...'+res.value.length)
+            res.value.forEach( item => {
+                let section = item.id
+                list[section] = {
+                    title: item.displayName
+                }
+            })
+            view.sections.load(list)
         })
     },
 
-    createList = function() {
-        console.log('create list...')
-        let sections = document.createElement('select')
-        sections.setAttribute('id','section')
-        sections.setAttribute('onchange','getPages()')
-        let option = document.createElement("option")
-        option.text = 'Select section...'
-        option.value = 'none'
-        sections.add(option)
-        for (let item in list) {
-            if (list[item].sections) {
-                let optgroup = document.createElement("optgroup")
-                optgroup.label = list[item].name
-                for (let sec in list[item].sections) {
-                    let option = document.createElement("option")
-                    option.text = list[item].sections[sec].name
-                    option.value = list[item].sections[sec].id
-                    optgroup.appendChild(option) 
-                }
-                sections.add(optgroup) 
-            } else {
-                let option = document.createElement("option")
-                option.text = list[item].name
-                option.value = item
-                sections.add(option) 
-            }
-        }
-        document.getElementById("sections").innerHTML = ''
-        document.getElementById("sections").append(sections)
-        document.getElementById("sections").innerHTML += '<div class="tip">' + counter + '</div>'
+    iterateGroup = function(grp) {
+        client.api('/me/onenote/sectionGroups/'+grp+'/sections').get()
+        .then( res => {
+            res.value.forEach(item => {
+                list[grp].sections.push({
+                    title: item.displayName,
+                    id: item.id
+                })
+            })
+            view.sections.load(list)
+        })
     }
+
+    client.api('/me/onenote/notebooks/'+view.notebooks.active+'/sectionGroups').get()
+    .then( res => {
+        console.log('sectionGroups...'+res.value.length)
+        res.value.forEach( group => {
+            list[group.id] = {
+                title: group.displayName,
+                sections: []
+            }
+            iterateGroup(group.id)
+        })
+        singleSections()
+    })
+
 },
 
 getPages = function() {
     console.log('get pages..')
-    update({
-        pages: "<p class='blink'>Searching...</>",
-        tasks: "",
-        todos: '0',
-        template:''
-    })
-    let id = document.getElementById('section').value
-    console.log('section', id)
-    pageLinks = {}
-    client.api('/me/onenote/sections/'+id+'/pages')
-    .select('id,title,links')
+    view.pages.clear()
+    client.api('/me/onenote/sections/'+view.sections.active+'/pages')
+    .select('id, title, links')
     .get()
     .then( res => {
-        let pages = document.createElement('select')
-        pages.setAttribute('id','page')
-        pages.setAttribute('onchange','getTasks()')
-        let option = document.createElement("option")
-        option.text = 'Select page...'
-        option.value = 'none'
-        pages.add(option)
-        for (let item in res.value) {
-            let option = document.createElement("option")
-            option.text = res.value[item].title
-            option.value = res.value[item].id
-            pages.add(option)
-            pageLinks[option.value] = { link: res.value[item].links.oneNoteClientUrl }
-        }
-        document.getElementById("pages").innerHTML = ""
-        document.getElementById("pages").append(pages)
-        document.getElementById("pages").innerHTML += " <div class='tip'>" + res.value.length + "</div>"
+        let data = [...res.value]
+        view.pages.load(data)
     })
 },
 
 getTasks = function() {
     console.log('get tasks...')
-    update({
-        todos: '0',
-        tasks: "<p class='blink'>Searching...</>",
-        template: document.getElementById("page").selectedOptions[0].text + " - #todo"
-    })
-    let id = document.getElementById('page').value,
-    link = pageLinks[id].link.href
-    console.log('page', id)
-    client.api('/me/onenote/pages/'+id+'/content')
+    view.tasks.clear()
+    let page = view.pages.active,
+    link = pageLinks[page].link.href
+    console.log('page', page)
+    client.api('/me/onenote/pages/'+page+'/content')
     .header('Accept', 'plain/text')
     .get()
     .then( html => {
-        tasksList = []
-        document.getElementById('tasks').innerHTML = ''
-        let tags = html.querySelectorAll('*[data-tag="to-do"]');
-        tags.forEach( tag => {
-            tasksList.push(tag.innerText)
-            document.getElementById('tasks').innerHTML += '&#9744;&nbsp;<a href="'+link+'">' + tag.innerText + '</a><br>'
-        })
-        document.getElementById("todos").innerHTML = tasksList.length
-        if (tasksList.length == 0) document.getElementById('tasks').innerHTML = '<br><b><i>NO TASKS!&nbsp;&nbsp;<small><a href="'+link+'">check page</a></small></i></b>'
+        view.tasks.load(html, link)
     })
-},
-
-todoist = {
-    name: localStorage['todoist_name'] || "",
-    token: localStorage['todoist_token'] || ""
 },
 
 connect = function() {
@@ -239,7 +269,7 @@ connect = function() {
     localStorage.setItem('todoist_name', todoist.name)
     document.getElementById('connection').style.display = 'none'
     getProjects()
-    update({ 
+    view.update({ 
         username: 'User: ' + todoist.name,
         token: '',
         name: ''
@@ -251,7 +281,7 @@ disconnect = function() {
     localStorage.removeItem('todoist_name')
     document.getElementById('connect').style.display = 'inline'
     document.getElementById('disconnect').style.display = 'none'
-    update({ 
+    view.update({ 
         username: 'User not connected',
         projects: '',
         token: '',
@@ -275,7 +305,7 @@ getProjects = function() {
 
     .then(data => {
         console.log('get projects')
-        update({ projects: '' })
+        view.update({ projects: '' })
 
         let projects = document.createElement('select')
         projects.setAttribute('id','project')
