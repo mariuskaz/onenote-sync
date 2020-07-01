@@ -21,8 +21,6 @@ todoist = {
 
 view = {
 
-    pageLinks: {},
-
     update: function(data) {
         for (let key in data) {
             let el = document.getElementById(key)
@@ -38,7 +36,6 @@ view = {
             document.getElementById('sections').innerHTML = ''
             document.getElementById('pages').innerHTML = ''
             document.getElementById('tasks').innerHTML = ''
-            document.getElementById('template').value = ''
         },
         
         load: function(data) {
@@ -64,7 +61,6 @@ view = {
             document.getElementById('pages').innerHTML = ''
             document.getElementById('tasks').innerHTML = ''
             document.getElementById('todos').innerHTML = '0'
-            document.getElementById('template').value = ''
         },
 
         load: function(data) {
@@ -103,7 +99,6 @@ view = {
             document.getElementById('pages').innerHTML = "<p class='blink'>Searching...</>"
             document.getElementById('tasks').innerHTML = ''
             document.getElementById('todos').innerHTML = '0'
-            document.getElementById('template').value = ''
         },
 
         load: function(data) {
@@ -134,7 +129,6 @@ view = {
         clear: function() {
             document.getElementById('tasks').innerHTML = "<p class='blink'>Searching...</>"
             document.getElementById('todos').innerHTML = '0'
-            document.getElementById('template').value = document.getElementById("page").selectedOptions[0].text + ' - #todo'
         },
 
         load: function(html, link) {
@@ -179,7 +173,7 @@ getNotebooks = function() {
     console.log('get notebooks')
     view.notebooks.clear()
     client.api('/me/onenote/notebooks')
-    .select('displayName,lastModifiedDateTime,id')
+    .select('displayName, id')
     .orderby('displayName')
     .get()
     .then( res => {
@@ -242,10 +236,7 @@ getPages = function() {
     client.api('/me/onenote/sections/'+view.sections.active+'/pages')
     .select('id, title, links')
     .get()
-    .then( res => {
-        let data = [...res.value]
-        view.pages.load(data)
-    })
+    .then( res => view.pages.load([...res.value]) )
 },
 
 getTasks = function() {

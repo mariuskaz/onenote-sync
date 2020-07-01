@@ -31,7 +31,7 @@ html
             h4 Projects
             div#projects(style='display:inline-block;margin-right:10px')
             h4 Template
-            input#template(style='width:350px', value='', autocomplete='off')
+            input#template(style='width:350px', value='#notebook - #page: #todo', autocomplete='off') 
             br
             br
             button(onclick='createTasks()' disabled) Export tasks
@@ -49,4 +49,5 @@ html
             input#token
             div.footer
                 button(onclick="connect()") Connect
+
         script(src='main.js')
