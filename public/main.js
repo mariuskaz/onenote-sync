@@ -128,6 +128,7 @@ view = {
         clear: function() {
             document.getElementById('tasks').innerHTML = "<p class='blink'>Searching...</>"
             document.getElementById('todos').innerHTML = '0'
+            this.taskslist = []
         },
 
         load: function(html, link) {
@@ -201,6 +202,7 @@ getNotebooks = function() {
 
 getSections = function() {
     console.log('get groups and sections..')
+    view.tasks.tasksList = []
     view.sections.clear()
     let list = {},
 
@@ -248,6 +250,7 @@ getSections = function() {
 
 getPages = function() {
     console.log('get pages..')
+    view.tasks.tasksList = []
     view.pages.clear()
     client.api('/me/onenote/sections/'+view.sections.active+'/pages')
     .select('id, title, links')
@@ -330,6 +333,92 @@ getProjects = function() {
         view.export.disabled = false
 
     })
+},
+
+createTasks = function() {
+    console.log('push tasks to todoist...')
+    if (view.tasks.tasksList.length == 0) {
+        alert('No tasks to export!')
+        return
+    }
+
+    let headers = {
+        'Authorization': 'Bearer ' + todoist.token,
+        'Content-Type': 'application/json'
+    },
+
+    project_id = document.getElementById("project").value,
+
+    page = document.getElementById('page').value,
+
+    project = { name: document.getElementById("page").selectedOptions[0].text },
+    
+    link = pageLinks[page].link.href
+
+    if (project_id == "new") {
+
+        let projects ='https://api.todoist.com/rest/v1/projects'
+
+        fetch(projects, { 
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(project)
+        })
+
+        .then(response => {
+            return response.json()
+        })
+
+        .then(data => {
+            let project_id = data.id,
+            tasks ='https://api.todoist.com/rest/v1/tasks',
+            timeout = 0
+            getProjects()
+            view.tasks.tasksList.forEach( task => {
+                let data = {
+                    content: "[" + project.name + ": " + task + "](" + link + ")",
+                    project_id: project_id,
+                }
+                if (timeout > 48) alert("Continue tasks export?\nTodoist API limits: 50req/min")
+                timeout = timeout > 49 ? 0 : timeout + 1
+                fetch(tasks, { 
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(data)
+                })
+                .then( response => console.log('Task created:', response.ok))
+                .catch( err => console.error(err))
+                timeout ++
+            })
+            window.open("https://todoist.com")
+        })
+
+        .catch( err => console.error(err))
+    
+    } else {
+
+        console.log('projectId', '['+project_id+']')
+        let tasks ='https://api.todoist.com/rest/v1/tasks',
+        timeout = 0
+        view.tasks.tasksList.forEach( task => {
+            let data = {
+                content: "[" + project.name + ": " + task + "](" + link + ")",
+                //project_id: project_id,
+            }
+            if (timeout > 48) alert("Continue tasks export?\nTodoist API limits: 50req/min")
+            timeout = timeout > 49 ? 0 : timeout + 1
+            fetch(tasks, { 
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify(data)
+            })
+            .then( response => console.log('Task created:', response.ok))
+            .catch( err => console.error(err))
+            timeout ++
+        })
+        window.open("https://todoist.com")
+    }
+
 }
 
 init()
