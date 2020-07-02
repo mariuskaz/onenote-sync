@@ -38,7 +38,7 @@ view = {
         },
         
         load: function(data) {
-            let notes = document.getElementById("notes")
+            let notes = document.getElementById("notes"),
             list = document.createElement('select')
             list.setAttribute('id','notebook')
             list.setAttribute('onchange','getSections()')
@@ -101,7 +101,7 @@ view = {
         },
 
         load: function(data) {
-            let pages = document.getElementById("pages")
+            let pages = document.getElementById("pages"),
             list = document.createElement('select')
             pageLinks = {}
             list.setAttribute('id','page')
@@ -159,6 +159,7 @@ init = function() {
 
     if (todoist.token.length > 0) {
         view.update({ username: 'User: ' + todoist.name })
+        document.getElementById('export').disabled = false
         getProjects()
     }
     
@@ -253,14 +254,11 @@ getTasks = function() {
 },
 
 connect = function() {
+    document.getElementById('connection').style.display = 'none'
     todoist.name = document.getElementById('name').value
     todoist.token = document.getElementById('token').value
-    localStorage.setItem('todoist_token', todoist.token)
-    localStorage.setItem('todoist_name', todoist.name)
-    document.getElementById('connection').style.display = 'none'
     getProjects()
     view.update({ 
-        username: 'User: ' + todoist.name,
         token: '',
         name: ''
     })
@@ -273,6 +271,7 @@ disconnect = function() {
     localStorage.removeItem('todoist_name')
     document.getElementById('connect').style.display = 'inline'
     document.getElementById('disconnect').style.display = 'none'
+    document.getElementById('export').disabled = true
     view.update({ 
         username: 'User not connected',
         projects: ''
@@ -296,7 +295,10 @@ getProjects = function() {
 
     .then(data => {
         console.log('get projects')
-        view.update({ projects: '' })
+        view.update({ 
+            username: 'User: ' + todoist.name,
+            projects: '' 
+        })
 
         let projects = document.createElement('select')
         projects.setAttribute('id','project')
@@ -313,10 +315,13 @@ getProjects = function() {
             option.value = project.id
             projects.add(option)
         }
-        
+
+        localStorage.setItem('todoist_token', todoist.token)
+        localStorage.setItem('todoist_name', todoist.name)
         document.getElementById("projects").append(projects)
         document.getElementById('connect').style.display = 'none'
         document.getElementById('disconnect').style.display = 'inline'
+        document.getElementById('export').disabled = false
     })
 }
 
