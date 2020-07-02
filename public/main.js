@@ -142,7 +142,27 @@ view = {
             document.getElementById("todos").innerHTML = this.tasksList.length
             if (this.tasksList.length == 0) document.getElementById('tasks').innerHTML = '<br><b><i>NO TASKS!&nbsp;&nbsp;<small><a href="'+link+'">check page</a></small></i></b>'
         }
-    }
+    },
+
+    get projects() {
+        return document.getElementById("projects")
+    },
+
+    get connection() {
+        return document.getElementById("connection")
+    },
+
+    get connect() {
+        return document.getElementById("connect")
+    },
+
+    get disconnect() {
+        return document.getElementById("disconnect")
+    },
+
+    get export() {
+        return document.getElementById("export")
+    },
 
 },
 
@@ -250,7 +270,7 @@ getTasks = function() {
 },
 
 connect = function() {
-    document.getElementById('connection').style.display = 'none'
+    view.connection.style.display = 'none'
     todoist.name = document.getElementById('name').value
     todoist.token = document.getElementById('token').value
     getProjects()
@@ -265,9 +285,9 @@ disconnect = function() {
     todoist.token = ''
     localStorage.removeItem('todoist_token')
     localStorage.removeItem('todoist_name')
-    document.getElementById('connect').style.display = 'inline'
-    document.getElementById('disconnect').style.display = 'none'
-    document.getElementById('export').disabled = true
+    view.connect.style.display = 'inline'
+    view.disconnect.style.display = 'none'
+    view.export.disabled = true
     view.update({ 
         username: 'User not connected',
         projects: ''
@@ -291,33 +311,24 @@ getProjects = function() {
 
     .then(data => {
         console.log('get projects')
+        localStorage.setItem('todoist_token', todoist.token)
+        localStorage.setItem('todoist_name', todoist.name)
+
         view.update({ 
             username: 'User: ' + todoist.name,
             projects: '' 
         })
 
-        let projects = document.createElement('select')
-        projects.setAttribute('id','project')
+        let list = document.createElement('select')
+        list.setAttribute('id','project')
+        list.options.add(new Option('Create new project', 'new'))
+        data.forEach( project => list.options.add(new Option(project.name, project.id)) )
 
-        let option = document.createElement("option")
-        option.text = 'Create new project'
-        option.value = 'none'
-        projects.add(option)
+        view.projects.append(list)
+        view.connect.style.display = 'none'
+        view.disconnect.style.display = 'inline'
+        view.export.disabled = false
 
-        for (let item in data) {
-            let project = data[item],
-            option = document.createElement("option")
-            option.text = project.name
-            option.value = project.id
-            projects.add(option)
-        }
-
-        localStorage.setItem('todoist_token', todoist.token)
-        localStorage.setItem('todoist_name', todoist.name)
-        document.getElementById("projects").append(projects)
-        document.getElementById('connect').style.display = 'none'
-        document.getElementById('disconnect').style.display = 'inline'
-        document.getElementById('export').disabled = false
     })
 }
 
