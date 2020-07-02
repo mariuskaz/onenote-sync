@@ -157,11 +157,7 @@ init = function() {
         getNotebooks()
     })
 
-    if (todoist.token.length > 0) {
-        view.update({ username: 'User: ' + todoist.name })
-        document.getElementById('export').disabled = false
-        getProjects()
-    }
+    if (todoist.token.length > 0) getProjects()
     
 },
 
