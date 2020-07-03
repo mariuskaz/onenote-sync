@@ -50,4 +50,9 @@ html
             .footer
                 button(onclick="connect()") Connect
 
+        .dialog#alert(style="height:110px;width:200px")
+            h3#message(style="text-align:center") No message...
+            .footer(style="text-align:center")
+                button(style="width:80px;" onclick="document.getElementById('alert').style.display = 'none'") Close
+
         script(src='main.js')

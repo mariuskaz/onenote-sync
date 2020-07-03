@@ -145,6 +145,10 @@ view = {
         }
     },
 
+    get alert() {
+        return document.getElementById("alert")
+    },
+
     get projects() {
         return document.getElementById("projects")
     },
@@ -353,11 +357,8 @@ createTasks = function() {
     },
 
     project_id = document.getElementById("project").value,
-
     page = document.getElementById('page').value,
-
     project = { name: document.getElementById("page").selectedOptions[0].text },
-    
     link = pageLinks[page].link.href
 
     if (project_id == "new") {
@@ -424,6 +425,11 @@ createTasks = function() {
         window.open("https://todoist.com")
     }
 
+}
+
+window.alert = function(message) {
+    view.update({ message })
+    view.alert.style.display = 'block'
 }
 
 init()
