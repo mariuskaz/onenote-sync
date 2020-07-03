@@ -161,6 +161,10 @@ view = {
         return document.getElementById("disconnect")
     },
 
+    get logout() {
+        return document.getElementById("logout")
+    },
+
     get export() {
         return document.getElementById("export")
     },
@@ -172,7 +176,7 @@ init = function() {
     client.api("/me").get()
     .then( res => {
         view.update({ onenote: "User: " + res.userPrincipalName })
-        document.getElementById('logout').style.display = 'inline-block'
+        view.logout.style.display = 'inline-block'
         document.getElementById('logo1').src = document.getElementById('logo1').src
         document.getElementById('logo2').src = document.getElementById('logo2').src
         getNotebooks()
@@ -298,6 +302,7 @@ disconnect = function() {
 },
 
 getProjects = function() {
+
     let headers = {
         'Authorization': 'Bearer ' + todoist.token
     },
@@ -376,9 +381,8 @@ createTasks = function() {
             getProjects()
             view.tasks.tasksList.forEach( task => {
                 let data = {
-                    //content: "[" + project.name + ": " + task + "](" + link + ")",
                     content: "[" + task + "](" + link + ")",
-                    project_id: project_id,
+                    //project_id: project_id,
                 }
                 if (timeout > 48) alert("Continue tasks export?\nTodoist API limits: 50req/min")
                 timeout = timeout > 49 ? 0 : timeout + 1
