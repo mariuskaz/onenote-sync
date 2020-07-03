@@ -171,7 +171,7 @@ init = function() {
 
     client.api("/me").get()
     .then( res => {
-        view.update({ user: "User: " + res.userPrincipalName })
+        view.update({ onenote: "User: " + res.userPrincipalName })
         document.getElementById('logout').style.display = 'inline-block'
         document.getElementById('logo1').src = document.getElementById('logo1').src
         document.getElementById('logo2').src = document.getElementById('logo2').src
@@ -292,7 +292,7 @@ disconnect = function() {
     view.disconnect.style.display = 'none'
     view.export.disabled = true
     view.update({ 
-        username: 'User not connected',
+        todoist: 'User not connected',
         projects: ''
     })
 },
@@ -318,7 +318,7 @@ getProjects = function() {
         localStorage.setItem('todoist_name', todoist.name)
 
         view.update({ 
-            username: 'User: ' + todoist.name,
+            todoist: 'User: ' + todoist.name,
             projects: '' 
         })
 
@@ -376,7 +376,8 @@ createTasks = function() {
             getProjects()
             view.tasks.tasksList.forEach( task => {
                 let data = {
-                    content: "[" + project.name + ": " + task + "](" + link + ")",
+                    //content: "[" + project.name + ": " + task + "](" + link + ")",
+                    content: "[" + task + "](" + link + ")",
                     project_id: project_id,
                 }
                 if (timeout > 48) alert("Continue tasks export?\nTodoist API limits: 50req/min")
@@ -403,7 +404,7 @@ createTasks = function() {
         view.tasks.tasksList.forEach( task => {
             let data = {
                 content: "[" + project.name + ": " + task + "](" + link + ")",
-                //project_id: project_id,
+                project_id: project_id,
             }
             if (timeout > 48) alert("Continue tasks export?\nTodoist API limits: 50req/min")
             timeout = timeout > 49 ? 0 : timeout + 1

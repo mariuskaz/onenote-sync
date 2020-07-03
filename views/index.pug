@@ -8,28 +8,28 @@ html
         link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
     body
         img.logo#logo1(src='images/onenote.png')
-        div.block
-            div#user User not logged
+        .block
+            #onenote User not logged
             button#logout(onclick="logout()") Logout
             h4 Notebook
-            div#notes
+            #notes
             h4 Section
-            div#sections
+            #sections
             h4 Page
-            div#pages
+            #pages
             h4.tasks Tasks
-            div.tip#todos 0
-            div#tasks
+            .tip#todos 0
+            #tasks
         br
         br
 
         img.logo#logo2(src='images/todoist.png')
-        div.block
-            div#username(style="display:inline-block;margin-right:20px") User not connected
+        .block
+            #todoist(style="display:inline-block;margin-right:20px") User not connected
             button#connect(onclick="document.getElementById('connection').style.display = 'block'") Connect
             button#disconnect(onclick="disconnect()") Disconnect
             h4 Projects
-            div#projects(style='display:inline-block;margin-right:10px')
+            #projects(style='display:inline-block;margin-right:10px')
             h4 Template
             input#template(style='width:350px', value='#notebook - #page: #todo', autocomplete='off') 
             br
@@ -47,7 +47,7 @@ html
             label Todoist API token:
             br
             input#token
-            div.footer
+            .footer
                 button(onclick="connect()") Connect
 
         script(src='main.js')
