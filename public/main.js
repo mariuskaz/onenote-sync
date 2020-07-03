@@ -145,12 +145,31 @@ view = {
         }
     },
 
+    selected: {
+        get notebook() {
+            return document.getElementById("notebook").selectedOptions[0].text
+        },
+
+        get section() {
+            return document.getElementById("section").selectedOptions[0].text
+        },
+
+        get page() {
+            return document.getElementById("page").selectedOptions[0].text
+        }
+
+    },
+
     get alert() {
         return document.getElementById("alert")
     },
 
     get projects() {
         return document.getElementById("projects")
+    },
+
+    get template() {
+        return document.getElementById("template")
     },
 
     get connection() {
@@ -381,9 +400,13 @@ createTasks = function() {
             timeout = 0
             getProjects()
             view.tasks.tasksList.forEach( task => {
+                let template = view.template.value.replace('#notebook', view.selected.notebook)
+                template = template.replace('#section', view.selected.section)
+                template = template.replace('#page', view.selected.page)
+                template = template.replace('#todo', task)
                 let data = {
-                    content: "[" + task + "](" + link + ")",
-                    //project_id: project_id,
+                    content: "[" + template + "](" + link + ")",
+                    project_id: project_id,
                 }
                 if (timeout > 48) alert("Continue tasks export?\nTodoist API limits: 50req/min")
                 timeout = timeout > 49 ? 0 : timeout + 1
