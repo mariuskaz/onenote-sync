@@ -9,5 +9,5 @@ Upload tasks from onenote to todoist.com:
 # install dependencies
 npm install
 
-# run local at localhost:3000
-npm run start
+# run locally at localhost:3000
+npm start
