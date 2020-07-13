@@ -152,7 +152,7 @@ a:hover, a:active {
 
 
 
-#onenote {
+#onenote, #todoist {
     display:inline-block;
     margin-right:20px;
 }
@@ -169,6 +169,32 @@ a:hover, a:active {
     width:250px;
 }
 
+#projects {
+    display:inline-block;
+    margin-right:10px
+}
+
+#template{
+    width:350px;
+}
+
 #disconnect {
     display: none;
+}
+
+#alert {
+    height:110px;
+    width:200px;
+}
+
+#alert .footer {
+    text-align:center;
+}
+
+#alert button {
+    width:80px;
+}
+
+#message {
+    text-align:center;
 }

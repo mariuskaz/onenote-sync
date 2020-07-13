@@ -22,19 +22,21 @@ todoist = {
 view = {
 
     update: function(data) {
-        for (let key in data) {
-            let el = document.getElementById(key)
-            if (el.nodeName == 'INPUT') el.value = data[key]
-                else el.innerHTML = data[key]
+        for (let id in data) {
+            let el = document.getElementById(id)
+            if (el.nodeName == 'INPUT') el.value = data[id]
+                else el.innerHTML = data[id]
         }
     },
     
     notebooks: {
         clear: function() {
-            document.getElementById('notes').innerHTML = "<p class='blink'>Loading...</>"
-            document.getElementById('sections').innerHTML = ''
-            document.getElementById('pages').innerHTML = ''
-            document.getElementById('tasks').innerHTML = ''
+            view.update({
+                notes: "<p class='blink'>Loading...</>",
+                sections: '',
+                pages: '',
+                tasks: ''
+            })
         },
         
         load: function(data) {
@@ -56,10 +58,12 @@ view = {
 
     sections: {
         clear: function() {
-            document.getElementById('sections').innerHTML = "<p class='blink'>Searching...</>"
-            document.getElementById('pages').innerHTML = ''
-            document.getElementById('tasks').innerHTML = ''
-            document.getElementById('todos').innerHTML = '0'
+            view.update({
+                sections: '<p class="blink">Searching...</>',
+                pages: '',
+                tasks: '',
+                todos: '0'
+            })
         },
 
         load: function(data) {
@@ -95,9 +99,11 @@ view = {
 
     pages: {
         clear: function() {
-            document.getElementById('pages').innerHTML = "<p class='blink'>Searching...</>"
-            document.getElementById('tasks').innerHTML = ''
-            document.getElementById('todos').innerHTML = '0'
+            view.update({
+                pages: '<p class="blink">Searching...</>',
+                tasks: '',
+                todos: '0'
+            })
         },
 
         load: function(data) {
@@ -126,8 +132,10 @@ view = {
         tasksList: [],
 
         clear: function() {
-            document.getElementById('tasks').innerHTML = "<p class='blink'>Searching...</>"
-            document.getElementById('todos').innerHTML = '0'
+            view.update({
+                tasks: '<p class="blink">Searching...</>',
+                todos: '0'
+            })
             this.taskslist = []
         },
 
@@ -160,36 +168,16 @@ view = {
 
     },
 
-    get alert() {
-        return document.getElementById("alert")
+    get(id) {
+        return document.getElementById(id)
     },
 
-    get projects() {
-        return document.getElementById("projects")
+    hide(id) {
+        return document.getElementById(id).style.display = 'none'
     },
 
-    get template() {
-        return document.getElementById("template")
-    },
-
-    get connection() {
-        return document.getElementById("connection")
-    },
-
-    get connect() {
-        return document.getElementById("connect")
-    },
-
-    get disconnect() {
-        return document.getElementById("disconnect")
-    },
-
-    get logout() {
-        return document.getElementById("logout")
-    },
-
-    get export() {
-        return document.getElementById("export")
+    show(id) {
+        return document.getElementById(id).style.display = 'inline'
     },
 
 },
@@ -199,9 +187,8 @@ init = function() {
     client.api("/me").get()
     .then( res => {
         view.update({ onenote: "User: " + res.userPrincipalName })
-        view.logout.style.display = 'inline-block'
-        document.getElementById('logo1').src = document.getElementById('logo1').src
-        document.getElementById('logo2').src = document.getElementById('logo2').src
+        Array.from(document.querySelectorAll('.logo')).forEach( img => img.src = img.src )
+        view.show('logout')
         getNotebooks()
     })
 
@@ -300,9 +287,9 @@ getTasks = function() {
 },
 
 connect = function() {
-    view.connection.style.display = 'none'
-    todoist.name = document.getElementById('name').value
-    todoist.token = document.getElementById('token').value
+    view.get('connection').style.display = 'none'
+    todoist.name = view.get('name').value
+    todoist.token = view.get('token').value
     getProjects()
     view.update({ 
         token: '',
@@ -315,9 +302,9 @@ disconnect = function() {
     todoist.token = ''
     localStorage.removeItem('todoist_token')
     localStorage.removeItem('todoist_name')
-    view.connect.style.display = 'inline'
-    view.disconnect.style.display = 'none'
-    view.export.disabled = true
+    view.get('export').disabled = true
+    view.hide('disconnect')
+    view.show('connect')
     view.update({ 
         todoist: 'User not connected',
         projects: ''
@@ -355,10 +342,10 @@ getProjects = function() {
         list.options.add(new Option('Create new project', 'new'))
         data.forEach( project => list.options.add(new Option(project.name, project.id)) )
 
-        view.projects.append(list)
-        view.connect.style.display = 'none'
-        view.disconnect.style.display = 'inline'
-        view.export.disabled = false
+        view.get('projects').append(list)
+        view.get('export').disabled = false
+        view.hide('connect')
+        view.show('disconnect')
 
     })
 },
@@ -375,9 +362,9 @@ createTasks = function() {
         'Content-Type': 'application/json'
     },
 
-    project_id = document.getElementById("project").value,
-    page = document.getElementById('page').value,
-    project = { name: document.getElementById("page").selectedOptions[0].text },
+    project_id = view.get("project").value,
+    page = view.get('page').value,
+    project = { name: view.get("page").selectedOptions[0].text },
     link = pageLinks[page].link.href
 
     if (project_id == "new") {
@@ -400,7 +387,7 @@ createTasks = function() {
             timeout = 0
             getProjects()
             view.tasks.tasksList.forEach( task => {
-                let template = view.template.value.replace('#notebook', view.selected.notebook)
+                let template = view.get('template').value.replace('#notebook', view.selected.notebook)
                 template = template.replace('#section', view.selected.section)
                 template = template.replace('#page', view.selected.page)
                 template = template.replace('#todo', task)
@@ -452,7 +439,7 @@ createTasks = function() {
 
 window.alert = function(message) {
     view.update({ message })
-    view.alert.style.display = 'block'
+    view.show('alert')
 }
 
 init()

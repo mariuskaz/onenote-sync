@@ -7,7 +7,7 @@ html
         link(rel="stylesheet", href="style.css")
         link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
     body
-        img.logo#logo1(src='images/onenote.png')
+        img.logo(src='images/onenote.png')
         .block
             #onenote User not logged
             button#logout(onclick="logout()") Logout
@@ -23,15 +23,15 @@ html
         br
         br
 
-        img.logo#logo2(src='images/todoist.png')
+        img.logo(src='images/todoist.png')
         .block
-            #todoist(style="display:inline-block;margin-right:20px") User not connected
-            button#connect(onclick="document.getElementById('connection').style.display = 'block'") Connect
+            #todoist User not connected
+            button#connect(onclick="view.show('connection')") Connect
             button#disconnect(onclick="disconnect()") Disconnect
             h4 Projects
-            #projects(style='display:inline-block;margin-right:10px')
+            #projects
             h4 Template
-            input#template(style='width:350px', value='#notebook - #page: #todo', autocomplete='off') 
+            input#template(value='#notebook - #page: #todo', autocomplete='off') 
             br
             br
             button#export(onclick='createTasks()' disabled) Export tasks
@@ -39,7 +39,7 @@ html
         br
         
         .dialog#connection
-            i.material-icons.close-icon(onclick="document.getElementById('connection').style.display = 'none'") close
+            i.material-icons.close-icon(onclick="view.hide('connection')") close
             label User name:
             br
             input#name(autocomplete='off')
@@ -50,9 +50,9 @@ html
             .footer
                 button(onclick="connect()") Connect
 
-        .dialog#alert(style="height:110px;width:200px")
-            h3#message(style="text-align:center") No message...
-            .footer(style="text-align:center")
-                button(style="width:80px;" onclick="document.getElementById('alert').style.display = 'none'") Close
+        .dialog#alert
+            h3#message No message...
+            .footer
+                button(onclick="view.hide('alert')") Close
 
         script(src='main.js')
