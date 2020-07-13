@@ -1,7 +1,7 @@
 const msalConfig = {
     auth: {
         clientId: "77d579f2-3366-4120-a9ee-611e72487061", // replace with your own clientID from Properties page in Azure portal
-        redirectUri: window.location.origin,
+        redirectUri: location.origin,
     },
 },
 
@@ -293,7 +293,7 @@ getTasks = function() {
 },
 
 connect = function() {
-    view.get('connection').style.display = 'none'
+    view.hide('connection')
     todoist.name = view.get('name').value
     todoist.token = view.get('token').value
     getProjects()
