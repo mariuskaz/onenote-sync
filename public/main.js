@@ -9,10 +9,8 @@ graphScopes = ["user.read", "notes.read"],
 msalApplication = new Msal.UserAgentApplication(msalConfig),
 options = new MicrosoftGraph.MSALAuthenticationProviderOptions(graphScopes),
 authProvider = new MicrosoftGraph.ImplicitMSALAuthenticationProvider(msalApplication, options),
-
 config = { authProvider },
-Client = MicrosoftGraph.Client,
-client = Client.initWithMiddleware(config),
+client = MicrosoftGraph.Client.initWithMiddleware(config),
 
 todoist = {
     name: localStorage['todoist_name'] || "",
@@ -51,7 +49,7 @@ view = {
             notes.innerHTML += " <div class='tip'>" + data.length + "</div>"
         },
 
-        get active() {
+        get activeId() {
             return document.getElementById('notebook').value
         }
     },
@@ -92,7 +90,7 @@ view = {
             sections.innerHTML += '<div class="tip">' + counter + '</div>'
         },
 
-        get active() {
+        get activeId() {
             return document.getElementById('section').value
         }
     },
@@ -122,7 +120,7 @@ view = {
             pages.innerHTML += " <div class='tip'>" + data.length + "</div>"
         },
 
-        get active() {
+        get activeId() {
             return document.getElementById('page').value
         }
 
@@ -229,7 +227,7 @@ getSections = function() {
     let list = {},
 
     singleSections = function() {
-        client.api('/me/onenote/notebooks/'+view.notebooks.active+'/sections').get()
+        client.api('/me/onenote/notebooks/'+view.notebooks.activeId+'/sections').get()
         .then( res => {
             console.log('sections...'+res.value.length)
             res.value.forEach( item => {
@@ -255,7 +253,7 @@ getSections = function() {
         })
     }
 
-    client.api('/me/onenote/notebooks/'+view.notebooks.active+'/sectionGroups').get()
+    client.api('/me/onenote/notebooks/'+view.notebooks.activeId+'/sectionGroups').get()
     .then( res => {
         console.log('sectionGroups...'+res.value.length)
         res.value.forEach( group => {
@@ -274,7 +272,7 @@ getPages = function() {
     console.log('get pages..')
     view.tasks.tasksList = []
     view.pages.clear()
-    client.api('/me/onenote/sections/'+view.sections.active+'/pages')
+    client.api('/me/onenote/sections/'+view.sections.activeId+'/pages')
     .select('id, title, links')
     .get()
     .then( res => view.pages.load([...res.value]) )
@@ -283,7 +281,7 @@ getPages = function() {
 getTasks = function() {
     console.log('get tasks...')
     view.tasks.clear()
-    let page = view.pages.active,
+    let page = view.pages.activeId,
     link = pageLinks[page].link.href
     console.log('page', page)
     client.api('/me/onenote/pages/'+page+'/content')
