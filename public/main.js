@@ -180,6 +180,14 @@ view = {
         return document.getElementById(id).style.display = 'inline'
     },
 
+    disable(id) {
+        document.getElementById(id).disabled = true
+    },
+
+    enable(id) {
+        document.getElementById(id).disabled = false
+    },
+
 },
 
 init = function() {
@@ -302,7 +310,7 @@ disconnect = function() {
     todoist.token = ''
     localStorage.removeItem('todoist_token')
     localStorage.removeItem('todoist_name')
-    view.get('export').disabled = true
+    view.disable('export')
     view.hide('disconnect')
     view.show('connect')
     view.update({ 
@@ -343,10 +351,10 @@ getProjects = function() {
         data.forEach( project => list.options.add(new Option(project.name, project.id)) )
 
         view.get('projects').append(list)
-        view.get('export').disabled = false
         view.hide('connect')
         view.show('disconnect')
-
+        view.enable('export')
+        
     })
 },
 
