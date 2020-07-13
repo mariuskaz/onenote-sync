@@ -102,7 +102,7 @@ a:hover, a:active {
 }
 
 .dialog {
-    position: absolute;
+    position: fixed;
     display: none;
     color:gray;
     background: #fafafa;
