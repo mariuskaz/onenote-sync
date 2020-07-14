@@ -19,16 +19,21 @@ todoist = {
 
 view = {
 
-    update: function(data) {
+    update(data) {
         for (let id in data) {
             let el = document.getElementById(id)
-            if (el.nodeName == 'INPUT') el.value = data[id]
-                else el.innerHTML = data[id]
+            switch (el.nodeName) {
+                case 'INPUT':
+                    el.value = data[id]
+                    break
+                case 'DIV':
+                    el.innerHTML = data[id]
+            }
         }
     },
     
     notebooks: {
-        clear: function() {
+        clear() {
             view.update({
                 notes: "<p class='blink'>Loading...</>",
                 sections: '',
@@ -37,8 +42,8 @@ view = {
             })
         },
         
-        load: function(data) {
-            let notes = document.getElementById("notes"),
+        load(data) {
+            let notes = view.get("notes"),
             list = document.createElement('select')
             list.setAttribute('id','notebook')
             list.setAttribute('onchange','getSections()')
@@ -49,13 +54,13 @@ view = {
             notes.innerHTML += " <div class='tip'>" + data.length + "</div>"
         },
 
-        get activeId() {
+        get currentId() {
             return document.getElementById('notebook').value
         }
     },
 
     sections: {
-        clear: function() {
+        clear() {
             view.update({
                 sections: '<p class="blink">Searching...</>',
                 pages: '',
@@ -64,10 +69,10 @@ view = {
             })
         },
 
-        load: function(data) {
-            let sections = document.getElementById("sections"),
-            list = document.createElement('select'),
-            counter = 0
+        load(data) {
+            let counter = 0,
+            sections = view.get("sections"),
+            list = document.createElement('select')
             list.setAttribute('id','section')
             list.setAttribute('onchange','getPages()')
             list.options.add(new Option('Select section...', 'none'))
@@ -90,13 +95,13 @@ view = {
             sections.innerHTML += '<div class="tip">' + counter + '</div>'
         },
 
-        get activeId() {
+        get currentId() {
             return document.getElementById('section').value
         }
     },
 
     pages: {
-        clear: function() {
+        clear() {
             view.update({
                 pages: '<p class="blink">Searching...</>',
                 tasks: '',
@@ -104,8 +109,8 @@ view = {
             })
         },
 
-        load: function(data) {
-            let pages = document.getElementById("pages"),
+        load(data) {
+            let pages = view.get("pages"),
             list = document.createElement('select')
             pageLinks = {}
             list.setAttribute('id','page')
@@ -120,7 +125,7 @@ view = {
             pages.innerHTML += " <div class='tip'>" + data.length + "</div>"
         },
 
-        get activeId() {
+        get currentId() {
             return document.getElementById('page').value
         }
 
@@ -129,7 +134,7 @@ view = {
     tasks: {
         tasksList: [],
 
-        clear: function() {
+        clear() {
             view.update({
                 tasks: '<p class="blink">Searching...</>',
                 todos: '0'
@@ -137,8 +142,8 @@ view = {
             this.taskslist = []
         },
 
-        load: function(html, link) {
-            let tasks = document.getElementById('tasks'),
+        load(html, link) {
+            let tasks = view.get('tasks'),
             tags = html.querySelectorAll('*[data-tag="to-do"]')
             tasks.innerHTML = ''
             this.tasksList = []
@@ -146,8 +151,8 @@ view = {
                 this.tasksList.push(tag.innerText)
                 tasks.innerHTML += '&#9744;&nbsp;<a href="'+link+'">' + tag.innerText + '</a><br>'
             })
-            document.getElementById("todos").innerHTML = this.tasksList.length
-            if (this.tasksList.length == 0) document.getElementById('tasks').innerHTML = '<br><b><i>NO TASKS!&nbsp;&nbsp;<small><a href="'+link+'">check page</a></small></i></b>'
+            view.update({ todos: this.tasksList.length })
+            if (this.tasksList.length == 0) view.update({ tasks: '<br><b><i>NO TASKS!&nbsp;&nbsp;<small><a href="'+link+'">check page</a></small></i></b>' })
         }
     },
 
@@ -227,7 +232,7 @@ getSections = function() {
     let list = {},
 
     singleSections = function() {
-        client.api('/me/onenote/notebooks/'+view.notebooks.activeId+'/sections').get()
+        client.api('/me/onenote/notebooks/'+view.notebooks.currentId+'/sections').get()
         .then( res => {
             console.log('sections...'+res.value.length)
             res.value.forEach( item => {
@@ -253,7 +258,7 @@ getSections = function() {
         })
     }
 
-    client.api('/me/onenote/notebooks/'+view.notebooks.activeId+'/sectionGroups').get()
+    client.api('/me/onenote/notebooks/'+view.notebooks.currentId+'/sectionGroups').get()
     .then( res => {
         console.log('sectionGroups...'+res.value.length)
         res.value.forEach( group => {
@@ -272,19 +277,19 @@ getPages = function() {
     console.log('get pages..')
     view.tasks.tasksList = []
     view.pages.clear()
-    client.api('/me/onenote/sections/'+view.sections.activeId+'/pages')
+    client.api('/me/onenote/sections/'+view.sections.currentId+'/pages')
     .select('id, title, links')
     .get()
     .then( res => view.pages.load([...res.value]) )
 },
 
 getTasks = function() {
-    console.log('get tasks...')
+    console.log('get tasks..')
     view.tasks.clear()
-    let page = view.pages.activeId,
-    link = pageLinks[page].link.href
-    console.log('page', page)
-    client.api('/me/onenote/pages/'+page+'/content')
+    let pageId = view.pages.currentId,
+    link = pageLinks[pageId].link.href
+    console.log('page:', pageId)
+    client.api('/me/onenote/pages/'+pageId+'/content')
     .header('Accept', 'plain/text')
     .get()
     .then( html => {
@@ -368,12 +373,12 @@ createTasks = function() {
         'Content-Type': 'application/json'
     },
 
-    project_id = view.get("project").value,
-    page = view.get('page').value,
+    projectId = view.get("project").value,
+    pageId = view.get('page').value,
     project = { name: view.get("page").selectedOptions[0].text },
-    link = pageLinks[page].link.href
+    link = pageLinks[pageId].link.href
 
-    if (project_id == "new") {
+    if (projectId == "new") {
 
         let projects ='https://api.todoist.com/rest/v1/projects'
 
@@ -408,7 +413,7 @@ createTasks = function() {
                     headers: headers,
                     body: JSON.stringify(data)
                 })
-                .then( response => console.log('Task created:', response.ok))
+                .then( response => console.log('task created:', response.ok))
                 .catch( err => console.error(err))
                 timeout ++
             })
@@ -434,7 +439,7 @@ createTasks = function() {
                 headers: headers,
                 body: JSON.stringify(data)
             })
-            .then( response => console.log('Task created:', response.ok))
+            .then( response => console.log('task created:', response.ok))
             .catch( err => console.error(err))
             timeout ++
         })
