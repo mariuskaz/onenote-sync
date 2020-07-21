@@ -1,11 +1,11 @@
 const msalConfig = {
     auth: {
-        clientId: "77d579f2-3366-4120-a9ee-611e72487061", // replace with your own clientID from Properties page in Azure portal
+        clientId: '77d579f2-3366-4120-a9ee-611e72487061', // replace with your own clientID from Properties page in Azure portal
         redirectUri: location.origin,
     },
 },
 
-graphScopes = ["user.read", "notes.read"],
+graphScopes = ['user.read', 'notes.read'],
 msalApplication = new Msal.UserAgentApplication(msalConfig),
 options = new MicrosoftGraph.MSALAuthenticationProviderOptions(graphScopes),
 authProvider = new MicrosoftGraph.ImplicitMSALAuthenticationProvider(msalApplication, options),
@@ -13,8 +13,8 @@ config = { authProvider },
 client = MicrosoftGraph.Client.initWithMiddleware(config),
 
 todoist = {
-    name: localStorage['todoist_name'] || "",
-    token: localStorage['todoist_token'] || ""
+    name: localStorage['todoist_name'] || '',
+    token: localStorage['todoist_token'] || ''
 },
 
 view = {
@@ -31,11 +31,15 @@ view = {
             }
         }
     },
+
+    get(id) {
+        return document.getElementById(id)
+    },
     
     notebooks: {
         clear() {
             view.update({
-                notes: "<p class='blink'>Loading...</>",
+                notes: '<p class="blink">Loading...</>',
                 sections: '',
                 pages: '',
                 tasks: ''
@@ -43,7 +47,7 @@ view = {
         },
         
         load(data) {
-            let notes = view.get("notes"),
+            let notes = view.get('notes'),
             list = document.createElement('select')
             list.setAttribute('id','notebook')
             list.setAttribute('onchange','getSections()')
@@ -51,7 +55,7 @@ view = {
             data.forEach( item => list.options.add(new Option(item.title, item.id)) )
             notes.innerHTML = ''
             notes.append(list)
-            notes.innerHTML += " <div class='tip'>" + data.length + "</div>"
+            notes.innerHTML += '<div class="tip">' + data.length + '</div>'
         },
 
         get currentId() {
@@ -71,14 +75,14 @@ view = {
 
         load(data) {
             let counter = 0,
-            sections = view.get("sections"),
+            sections = view.get('sections'),
             list = document.createElement('select')
             list.setAttribute('id','section')
             list.setAttribute('onchange','getPages()')
             list.options.add(new Option('Select section...', 'none'))
             for (let item in data) {
                 if (data[item].sections) {
-                    let optgroup = document.createElement("optgroup")
+                    let optgroup = document.createElement('optgroup')
                     optgroup.label = data[item].title
                     data[item].sections.forEach(section => {
                         optgroup.appendChild(new Option(section.title, section.id))
@@ -110,7 +114,7 @@ view = {
         },
 
         load(data) {
-            let pages = view.get("pages"),
+            let pages = view.get('pages'),
             list = document.createElement('select')
             pageLinks = {}
             list.setAttribute('id','page')
@@ -122,7 +126,7 @@ view = {
             })
             pages.innerHTML = ''
             pages.append(list)
-            pages.innerHTML += " <div class='tip'>" + data.length + "</div>"
+            pages.innerHTML += '<div class="tip">' + data.length + '</div>'
         },
 
         get currentId() {
@@ -139,7 +143,6 @@ view = {
                 tasks: '<p class="blink">Searching...</>',
                 todos: '0'
             })
-            this.taskslist = []
         },
 
         load(html, link) {
@@ -158,21 +161,17 @@ view = {
 
     selected: {
         get notebook() {
-            return document.getElementById("notebook").selectedOptions[0].text
+            return document.getElementById('notebook').selectedOptions[0].text
         },
 
         get section() {
-            return document.getElementById("section").selectedOptions[0].text
+            return document.getElementById('section').selectedOptions[0].text
         },
 
         get page() {
-            return document.getElementById("page").selectedOptions[0].text
+            return document.getElementById('page').selectedOptions[0].text
         }
 
-    },
-
-    get(id) {
-        return document.getElementById(id)
     },
 
     hide(id) {
@@ -195,9 +194,9 @@ view = {
 
 init = function() {
 
-    client.api("/me").get()
+    client.api('/me').get()
     .then( res => {
-        view.update({ onenote: "User: " + res.userPrincipalName })
+        view.update({ onenote: 'User: ' + res.userPrincipalName })
         Array.from(document.querySelectorAll('.logo')).forEach( img => img.src = img.src )
         view.show('logout')
         getNotebooks()
@@ -285,6 +284,7 @@ getPages = function() {
 
 getTasks = function() {
     console.log('get tasks..')
+    view.tasks.tasksList = []
     view.tasks.clear()
     let pageId = view.pages.currentId,
     link = pageLinks[pageId].link.href
@@ -323,7 +323,8 @@ disconnect = function() {
 },
 
 getProjects = function() {
-
+    console.log('get projects')
+    
     let headers = {
         'Authorization': 'Bearer ' + todoist.token
     },
@@ -339,7 +340,6 @@ getProjects = function() {
     })
 
     .then(data => {
-        console.log('get projects')
         localStorage.setItem('todoist_token', todoist.token)
         localStorage.setItem('todoist_name', todoist.name)
 
@@ -403,10 +403,10 @@ createTasks = function() {
                 template = template.replace('#page', view.selected.page)
                 template = template.replace('#todo', task)
                 let data = {
-                    content: "[" + template + "](" + link + ")",
+                    content: '[' + template + '](' + link + ')',
                     project_id: project_id,
                 }
-                if (timeout > 48) alert("Continue tasks export?\nTodoist API limits: 50req/min")
+                if (timeout > 48) alert('Continue tasks export?\nTodoist API limits: 50req/min')
                 timeout = timeout > 49 ? 0 : timeout + 1
                 fetch(tasks, { 
                     method: 'POST',
@@ -417,7 +417,7 @@ createTasks = function() {
                 .catch( err => console.error(err))
                 timeout ++
             })
-            window.open("https://todoist.com")
+            window.open('https://todoist.com')
         })
 
         .catch( err => console.error(err))
@@ -432,7 +432,7 @@ createTasks = function() {
                 content: "[" + project.name + ": " + task + "](" + link + ")",
                 project_id: project_id,
             }
-            if (timeout > 48) alert("Continue tasks export?\nTodoist API limits: 50req/min")
+            if (timeout > 48) alert('Continue tasks export?\nTodoist API limits: 50req/min')
             timeout = timeout > 49 ? 0 : timeout + 1
             fetch(tasks, { 
                 method: 'POST',
@@ -443,7 +443,7 @@ createTasks = function() {
             .catch( err => console.error(err))
             timeout ++
         })
-        window.open("https://todoist.com")
+        window.open('https://todoist.com')
     }
 
 }
