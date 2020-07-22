@@ -175,19 +175,19 @@ view = {
     },
 
     hide(id) {
-        return document.getElementById(id).style.display = 'none'
+       this.get(id).style.display = 'none'
     },
 
     show(id) {
-        return document.getElementById(id).style.display = 'inline'
+        this.get(id).style.display = 'inline'
     },
 
     disable(id) {
-        document.getElementById(id).disabled = true
+        this.get(id).disabled = true
     },
 
     enable(id) {
-        document.getElementById(id).disabled = false
+        this.get(id).disabled = false
     },
 
 },
